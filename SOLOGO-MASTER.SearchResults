@@ -1,0 +1,8 @@
+---- monitoringVirtual Matches (7 in 5 files) ----
+Current_sensor.c (core\src):	if(monitoringVirtual == FALSE) {
+Eeprom.c (core\src):	//vPrintf(UART1_SERIAL, " VIRTUAL SET : %d\r\n", monitoringVirtual);
+Protocol.c (core\src)://uint8_t monitoringVirtual = FALSE;
+Protocol.c (core\src):					monitoringVirtual = FALSE;
+Protocol.c (core\src):					monitoringVirtual = TRUE;
+Protocol.h (core\inc)://extern uint8_t monitoringVirtual;
+Uart.c (core\src):				monitoringVirtual = TRUE;

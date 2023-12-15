@@ -92,6 +92,7 @@ extern uint32_t microGetSystemTime(void);
 void HAL_WatchDogReload(void);
 void ExitTimerSet(void);
 uint8_t ExitTimerChekck(void);
+void UART_RX_DMA_Handler(void);
 
 #define		TIME_10_MS											10
 #define		TIME_30_MS											30

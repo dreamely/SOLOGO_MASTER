@@ -52,7 +52,7 @@ void LORA_BuffInit(void);
 uint8_t LORA_Reset(uint8_t argc, char **argv);
 void LORA_Get_Address(void);
 uint8_t LORA_Get_Command (char *sBuf);
-void LORA_Services_Function(void);
+void LORA_ServiceFunction(void);
 uint8_t LORA_Test(uint8_t argc, char **argv);
 uint8_t LORA_DispAddress(uint8_t argc, char **argv);
 void LORA_GetSerial(void);

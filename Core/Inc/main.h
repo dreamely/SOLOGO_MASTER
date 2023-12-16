@@ -46,6 +46,7 @@ extern "C" {
 #include "rtc_driver.h"
 #include "lora.h"
 #include "modbus.h"
+#include "uart_dma_driver.h"
 
 /* USER CODE END Includes */
 

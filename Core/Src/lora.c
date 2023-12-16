@@ -304,6 +304,7 @@ uint8_t LORASET_Terminal_Services(uint8_t argc, char **argv)
   while(1) {      
 
 		HAL_WatchDogReload();
+		UART_RX_DMA_Handler();
 
 		//콘솔 입력 없으면 시간 확인
     if(ExitTimerChekck()) {

@@ -34,15 +34,14 @@ void Modbus_Event(void)
 		return;
 	}
 
-	RX_LedOnOff(TRUE);
-
 	crc = modbusCRC16(&modbus.revbuf[0], modbus.recount-2);
 	
 	revcrc = modbus.revbuf[modbus.recount-2]*256 + modbus.revbuf[modbus.recount-1];
 
-	//Printf_("crc %04X, revcrc %04X\r\n", crc, revcrc);
-	
+	RX_LedOnOff(TRUE);
+
 	if(crc == revcrc) {
+
 		//match address
 		if(modbus.revbuf[0] == modbus.myadd) {
 			//function check
@@ -89,6 +88,9 @@ void Modbus_Event(void)
 
 	modbus.recount = 0;
 	modbus.reflag = 0;
+
+	//Printf_("Return modbus event\r\n");
+
 }
 
 //****************************************************************************************
@@ -493,20 +495,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			modbus.timeout++;
 			//마지막 데이터 수신하고 8ms 지나면 데이터를 수신하지 않는다 
 			//만약 if(modbus.timeout >= 8) 로 설정하고 115200 으로 데이터 요청하면 리부팅 됨,
-			//그래서 && modbus.reflag != 0 를 함께 조건으로 해야 함
 			//타이머 인터럽트만 루틴을 돌아야 하는데 리부팅 되는게 이해 안됨
+			//리부팅 해결이 안됨 
 
-			if(modbus.timeout >= 8 && modbus.reflag != 0) {
-
+			if(modbus.timeout >= 8 /*&& modbus.reflag != 0*/) {
 				modbus.timrun = 0;
 				modbus.reflag = 1;
-
-				//Printf_("Timer interrupt\r\n");
-
 			}
-
 		}
-
 	}
 }
 

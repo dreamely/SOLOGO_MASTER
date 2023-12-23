@@ -276,7 +276,7 @@ void USART2_IRQHandler(void)
 		//when receive data, timer count is clear
 		modbus.timeout = 0;
 
-		Printf_("%02X", modbus.revbuf[modbus.recount-1]);
+		//Printf_("%02X", modbus.revbuf[modbus.recount-1]);
 
 		//when receive first data, timer run
 		if(modbus.recount == 1) {

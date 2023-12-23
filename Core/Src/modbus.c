@@ -32,6 +32,8 @@ void Modbus_Event(void)
 		return;
 	}
 
+	RX_LedOnOff(TRUE);
+
 	crc = modbusCRC16(&modbus.revbuf[0], modbus.recount-2);
 	
 	revcrc = modbus.revbuf[modbus.recount-2]*256 + modbus.revbuf[modbus.recount-1];
@@ -81,6 +83,8 @@ void Modbus_Event(void)
 		}
 	}
 
+	RX_LedOnOff(FALSE);
+
 	modbus.recount = 0;
 	modbus.reflag = 0;
 }
@@ -97,6 +101,8 @@ void Modbus_Func3(void)
 	uint16_t Regadd, Reglen, crc;
 	uint8_t i, j, loarIndex;
 	uint8_t *arrayData;
+
+	TX_LedOnOff(TRUE);
 
 	//응답 주소는 받은 주소와 동일
 	Regadd = modbus.revbuf[2]*256 + modbus.revbuf[3];
@@ -145,6 +151,7 @@ void Modbus_Func3(void)
 		//요청번지는 요청주소를 8 로 나눈 버퍼인덱스 값 (로라 저장된 인덱스 번호)
 		loarIndex = Regadd/8;
 
+#if 0
 		if(gMsgLevel & DEBUG_FLAG_0005) {
 
 			Printf_("[%02d]  : ", loarIndex);
@@ -154,6 +161,7 @@ void Modbus_Func3(void)
 			}
 			Printf_("\r\n");
 		}
+#endif
 
 		for(j=0; j<Reglen*2; j++) {
 			modbus.sendbuf[i++] = LORA_REG_DEVICE[loarIndex][j];
@@ -163,7 +171,7 @@ void Modbus_Func3(void)
 	else {
 		//데이터값 복사하고 
 		arrayData = (void *)&ARRAY_TEMP;
-
+#if 0
 		if(gMsgLevel & DEBUG_FLAG_0005) {
 			Printf_("Array data size %d\r\n", sizeof(ARRAY_TEMP));
 
@@ -172,18 +180,11 @@ void Modbus_Func3(void)
 			}
 			Printf_("\r\n");
 		}
-
+#endif
 		for(j=0; j<sizeof(ARRAY_TEMP); j++) {
 			modbus.sendbuf[i++] = arrayData[j];
 		}
 
-		if(gMsgLevel & DEBUG_FLAG_0005) {
-			Printf_("Send data %d : ", i);
-			for(j=0; j<i; j++) {
-				Printf_("%02X ", modbus.sendbuf[j]);
-			}
-			Printf_("\r\n");
-		}
 	}
 
 	crc = modbusCRC16(modbus.sendbuf, i);
@@ -193,7 +194,20 @@ void Modbus_Func3(void)
 
 	for(j=0; j<i; j++) {
 		Modbus_Send_Byte(modbus.sendbuf[j]);
+
+		//Printf_("modbus send\r\n");
 	}
+
+	if(gMsgLevel & DEBUG_FLAG_0005) {
+		Printf_("Send data %d : ", i);
+		for(j=0; j<i; j++) {
+			Printf_("%02X ", modbus.sendbuf[j]);
+		}
+		Printf_("\r\n");
+	}
+
+	TX_LedOnOff(FALSE);
+
 }
 
 //****************************************************************************************
@@ -207,6 +221,8 @@ void Modbus_Func6(void)
 	uint16_t Regadd;
 	uint16_t val;
 	uint16_t i, crc, j;
+
+	TX_LedOnOff(TRUE);
 
 	//응답 주소는 받은 주소와 동일
 	Regadd = modbus.revbuf[2]*256 + modbus.revbuf[3];
@@ -237,6 +253,9 @@ void Modbus_Func6(void)
 	for(j=0; j<i; j++) {
 		Modbus_Send_Byte(modbus.sendbuf[j]);
 	}
+
+	TX_LedOnOff(FALSE);
+
 }
 
 //****************************************************************************************
@@ -251,6 +270,8 @@ void Modbus_Func16(void)
 	uint16_t Reglen;
 	uint16_t i, crc, j;
 	uint8_t index, add[8];
+
+	TX_LedOnOff(TRUE);
 
 	//응답 주소는 받은 주소와 동일
 	Regadd = modbus.revbuf[2]*256 + modbus.revbuf[3];
@@ -315,7 +336,13 @@ void Modbus_Func16(void)
 	}
 
 	I2C_EEPROM_BLOCK_WRITE(0, &add, index, 8);
+	//라이팅 했으면 EEPROM 다시 읽어와야 한다
+	LORA_Get_Address();
+
 	loraGetBinding(BINDING_TABLE_SIZE);
+
+	TX_LedOnOff(FALSE);
+
 }
 
 //****************************************************************************************
@@ -461,7 +488,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		if(modbus.timrun != 0) {
 			modbus.timeout++;
 
-			//데이터 수신하고 8ms 지나면 데이터를 수신하지 않는다 
+			//마지막 데이터 수신하고 8ms 지나면 데이터를 수신하지 않는다 
 			if(modbus.timeout >= 8) {
 				modbus.timrun = 0;
 				modbus.reflag = 1;

@@ -467,6 +467,10 @@ uint8_t LORA_MacInput(uint8_t argc, char **argv)
 		msg[6], msg[7]);		
 
 	I2C_EEPROM_BLOCK_WRITE(0, &msg, index, 8);
+
+	//라이팅 했으면 EEPROM 다시 읽어와야 한다
+	LORA_Get_Address();
+
 	loraGetBinding(BINDING_TABLE_SIZE);
 
 	return TRUE;
@@ -494,12 +498,14 @@ uint8_t LORA_DispAddress(uint8_t argc, char **argv)
 			Printf_("%02X ", LORA_REG_DEVICE[i][j]);
 		}
 
-		if(ticksSinceLastHeard[i] != MISSCOUNT_240_SEC)
-			Printf_("  TRUE");
-		else 
+		if(ticksSinceLastHeard[i] != MISSCOUNT_240_SEC) {
+			Printf_("  TRUE ");
+			Printf_("     %03d\r\n", ticksSinceLastHeard[i]);
+		}
+		else {
 			Printf_("  FALSE");
-		
-		Printf_("    %03d\r\n", ticksSinceLastHeard[i]);
+			Printf_("    FFFF\r\n");
+		}
 
 		//Printf_("\r\n");
 	}

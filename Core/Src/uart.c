@@ -498,6 +498,8 @@ uint16_t UART2_getc(void)
 
 void processUart2Input(void)
 {   
+#if 0	
+
 	uint8_t  i, msg[1];
 	uint16_t crc, revCRC, temp;
 
@@ -515,7 +517,7 @@ void processUart2Input(void)
 	cmd = (uint8_t)ch;
 
 	//vPrintf(UART1_SERIAL, "%02X %c", cmd, cmd);
-#if 0	
+
 	if (cmd == CMD_STX) {
 		if(stx_flag2 == 0) {
 			// dirty byte ...
@@ -618,9 +620,9 @@ uint16_t UART3_getc(void)
     if(Com3Buf.head >= LINE_BUFFER_MAX)
       Com3Buf.head = 0;
 
-		if(gMsgLevel & DEBUG_FLAG_0001) {
-			Printf_("%c", ch);
-		}
+		//if(gMsgLevel & DEBUG_FLAG_0001) {
+		//	Printf_("%c", ch);
+		//}
 
     return(ch & 0x00FF);
   }

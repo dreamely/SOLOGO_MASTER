@@ -55,6 +55,7 @@ DMA_HandleTypeDef hdma_usart3_rx;
 uint32_t systemTick = 0;
 volatile uint32_t SYSTICK_Chk[SYSTICK_NUM_INT];	
 extern uint8_t rx_dma_buf[LINE_BUFFER_MAX];
+//extern MODBUS modbus;
 
 /* USER CODE END PV */
 

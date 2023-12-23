@@ -1,6 +1,7 @@
 #include "main.h"
 
 MODBUS modbus;
+extern TIM_HandleTypeDef htim3;
 
 uint16_t Reg[] = {
 		0x0001,
@@ -12,6 +13,7 @@ uint16_t Reg[] = {
 		0x0007,
 		0x0008
 };
+//****************************************************************************************
 
 void Modbus_Init(void)
 {
@@ -485,24 +487,25 @@ unsigned short modbusCRC16(unsigned char *puchMsg, int usDataLen)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	if(htim->Instance == TIM3) {
-		if(modbus.timrun != 0) {
-			modbus.timeout++;
 
-			//마지막 데이터 수신하고 8ms 지나면 데이터를 수신하지 않는다 
-			if(modbus.timeout >= 8) {
+		if(modbus.timrun != 0) {
+
+			modbus.timeout++;
+			//마지막 데이터 수신하고 8ms 지나면 데이터를 수신하지 않는다 
+			//만약 if(modbus.timeout >= 8) 로 설정하고 115200 으로 데이터 요청하면 리부팅 됨,
+			//그래서 && modbus.reflag != 0 를 함께 조건으로 해야 함
+			//타이머 인터럽트만 루틴을 돌아야 하는데 리부팅 되는게 이해 안됨
+
+			if(modbus.timeout >= 8 && modbus.reflag != 0) {
+
 				modbus.timrun = 0;
 				modbus.reflag = 1;
-			}
-		}
 
-#if 0	
-		//모드버스 마스터로 동작시 매 1초마다 송신
-		modbus.Host_Sendtime++;
-		//1초 지닸다면 
-		if(modbus.Host_Sendtime > 1000) {
-			modbus.Host_time_flag = 1;
+				//Printf_("Timer interrupt\r\n");
+
+			}
+
 		}
-#endif
 
 	}
 }

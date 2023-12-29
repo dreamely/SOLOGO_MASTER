@@ -2,6 +2,7 @@
 
 MODBUS modbus;
 extern TIM_HandleTypeDef htim3;
+extern UART_HandleTypeDef huart2;
 
 uint16_t Reg[] = {
 		0x0001,
@@ -89,7 +90,11 @@ void Modbus_Event(void)
 	modbus.recount = 0;
 	modbus.reflag = 0;
 
-	//Printf_("Return modbus event\r\n");
+	//HAL_UART_AbortReceive_IT(&huart2);
+	//HAL_Delay(1);
+	//__HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);
+
+	//Printf_("Return modbus event timeout %d\r\n", modbus.timeout);
 
 }
 
@@ -121,7 +126,7 @@ void Modbus_Func3(void)
 		return;
 	}
 	//사용할 레지스터 개수는 총 4, (8바이트)보다 크거나 작으면  
-	else if(Reglen != 4 && Reglen != 48) {
+	else if(Reglen != 4 && Reglen != 64) {
 		//Printf_("MODBUS Reg len %d\r\n", Reglen);
 
 		Modbus_Send_Error(COUNT_IS_INVALID_CMD);
@@ -490,21 +495,59 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	if(htim->Instance == TIM3) {
 
-		if(modbus.timrun != 0) {
+		if(modbus.timrun == TRUE) {
 
 			modbus.timeout++;
 			//마지막 데이터 수신하고 8ms 지나면 데이터를 수신하지 않는다 
 			//만약 if(modbus.timeout >= 8) 로 설정하고 115200 으로 데이터 요청하면 리부팅 됨,
 			//타이머 인터럽트만 루틴을 돌아야 하는데 리부팅 되는게 이해 안됨
 			//리부팅 해결이 안됨 
-
+#if 1
 			if(modbus.timeout >= 8 /*&& modbus.reflag != 0*/) {
-				modbus.timrun = 0;
+				modbus.timrun = FALSE;
 				modbus.reflag = 1;
+				
+				//Printf_("No more receive, timeout %d\r\n", modbus.timeout);
+				//HAL_WatchDogReload();
+
 			}
+#endif
 		}
 	}
 }
 
+#if 0
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  if(huart->Instance == USART2)
+  {
+		//receive data process,,, waiting
+		if(modbus.reflag == 1) 
+		{
+			return;
+		}
+		else {
+			modbus.revbuf[modbus.recount++] = (uint8_t)(huart2.Instance->DR & (uint8_t)0x00FF);
+			//when receive data, timer count is clear
+			modbus.timeout = 0;
 
+			//Printf_("%02X", modbus.revbuf[modbus.recount-1]);
+
+			//when receive first data, timer run
+			if(modbus.recount == 1) {
+				modbus.timrun = 1;
+			}
+		}
+  }
+}
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+  if(huart->Instance == USART2)
+  {
+    /* Error Handling */
+  }
+}
+
+#endif
 

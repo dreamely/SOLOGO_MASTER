@@ -7,7 +7,7 @@
 #define 			CMD_REQUEST_TEMP						0x04
 #define 			CMD_RESPONSE_TEMP						0x05
 #define 			LEN_REQUEST_TEMP						0x0A
-#define 			LEN_RESPONSE_TEMP						0x0F
+#define 			LEN_RESPONSE_TEMP						0x10
 
 #if 0
 //데이터 전송시 더미 데이터 안들어가게 하려면 __packed 를 해야 한다 
@@ -32,6 +32,7 @@ typedef struct {
 
 typedef struct {
   uint16_t  type;			// 1:TC, 2:RTD
+  uint16_t  bat_rssi;	// RSSI 0 ~ 255, 배터리 0 ~ 100 %
   int16_t   temp1;		//온도*10
   int16_t   temp2;		//온도*10
 } __attribute__((packed))RESPONSE_TEMP;

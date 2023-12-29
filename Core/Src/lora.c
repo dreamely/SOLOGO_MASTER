@@ -207,14 +207,14 @@ void LORA_ServiceFunction(void)
 				if(strcmp(fargv[0], LORA_TX_OK1) == 0 && strcmp(fargv[1], LORA_RX_OK1) == 0) {
 					loraMode.rssi = atoi(fargv[2]);
 
-					//데이터는 총 30 으로 고정
-					hexstring_conver_hex(&fargv[4][0], 30, hex_string);
+					//데이터는 총 32 으로 고정
+					hexstring_conver_hex(&fargv[4][0], 32, hex_string);
 
 					if(gMsgLevel & DEBUG_FLAG_0003) {
 						Printf_("RSSI : %d, ", loraMode.rssi);
 
-						//헥사값으로 /2 = 15바이트
-						for(i=0; i<15; i++) {
+						//헥사값으로 32/2 = 16바이트
+						for(i=0; i<LEN_RESPONSE_TEMP; i++) {
 							Printf_("%02X ", hex_string[i]);
 						}
 						Printf_("\r\n");
@@ -227,8 +227,11 @@ void LORA_ServiceFunction(void)
 
 						if(index != UNKNOWN_DEVICE) {
 							ARRAY_TEMP.responseTemp[index].type = (uint16_t)hex_string[10];
-							memcpy(&ARRAY_TEMP.responseTemp[index].temp1, &hex_string[11], 2);
-							memcpy(&ARRAY_TEMP.responseTemp[index].temp2, &hex_string[13], 2);
+							ARRAY_TEMP.responseTemp[index].bat_rssi = (uint16_t)hex_string[11] << 8;
+							ARRAY_TEMP.responseTemp[index].bat_rssi |= loraMode.rssi*(-1);
+
+							memcpy(&ARRAY_TEMP.responseTemp[index].temp1, &hex_string[12], 2);
+							memcpy(&ARRAY_TEMP.responseTemp[index].temp2, &hex_string[14], 2);
 
 							//Printf_("1. type = %04X\r\n", ARRAY_TEMP.responseTemp[index].type);
 
@@ -250,8 +253,10 @@ void LORA_ServiceFunction(void)
 
 							if(gMsgLevel & DEBUG_FLAG_0003) {
 								Printf_("Matching EUI index %d\r\n", index);
-								Printf_("type %04X, temp1 %04X, temp2 %04X\r\n", 
+								Printf_("type %04X, bat %02X, rssi %02X, temp1 %04X, temp2 %04X\r\n", 
 									ARRAY_TEMP.responseTemp[index].type,
+									(ARRAY_TEMP.responseTemp[index].bat_rssi & 0xFF00) >> 8,
+									(ARRAY_TEMP.responseTemp[index].bat_rssi & 0x00FF),
 									ARRAY_TEMP.responseTemp[index].temp1, 
 									ARRAY_TEMP.responseTemp[index].temp2);
 							}
@@ -523,7 +528,7 @@ uint8_t LORA_SensorStatus(uint8_t argc, char **argv)
 
 
 	Printf_("*************************************************************\r\n");
-	Printf_(" INDEX  TYPE  TEMP1   TEMP2\r\n");
+	Printf_(" INDEX  TYPE  BAT  RSSI  TEMP1   TEMP2\r\n");
 	Printf_("*************************************************************\r\n");
 
 	for(i=0; i<LORA_DEVICE_MAX; i++) {
@@ -539,7 +544,9 @@ uint8_t LORA_SensorStatus(uint8_t argc, char **argv)
 			Printf_("     %02d", 0x00);
 		}
 
-		//Printf_("     %02d", ARRAY_TEMP.responseTemp[i].type);
+		Printf_("    %03d%%", ARRAY_TEMP.responseTemp[i].bat_rssi&0xFF00);
+		Printf_("   -%03d%%", ARRAY_TEMP.responseTemp[i].bat_rssi&0x00FF);
+
 		Printf_("    %d.%d", ARRAY_TEMP.responseTemp[i].temp1/10, ARRAY_TEMP.responseTemp[i].temp1%10);
 		Printf_("     %d.%d", ARRAY_TEMP.responseTemp[i].temp2/10, ARRAY_TEMP.responseTemp[i].temp2%10);
 		Printf_("\r\n");

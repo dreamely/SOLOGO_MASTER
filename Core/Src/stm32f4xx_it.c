@@ -263,6 +263,7 @@ void USART1_IRQHandler(void)
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
+#if 1
 	if ((__HAL_UART_GET_FLAG(&huart2, UART_FLAG_RXNE) != RESET) && 
 			(__HAL_UART_GET_IT_SOURCE(&huart2, UART_IT_RXNE) != RESET)) { 
 
@@ -271,19 +272,22 @@ void USART2_IRQHandler(void)
 		{
 			return;
 		}
+		else {
+			modbus.revbuf[modbus.recount++] = (uint8_t)(huart2.Instance->DR & (uint8_t)0x00FF);
+			//when receive data, timer count is clear
+			modbus.timeout = 0;
 
-		modbus.revbuf[modbus.recount++] = (uint8_t)(huart2.Instance->DR & (uint8_t)0x00FF);
-		//when receive data, timer count is clear
-		modbus.timeout = 0;
+			//Printf_("%02X", modbus.revbuf[modbus.recount-1]);
 
-		//Printf_("%02X", modbus.revbuf[modbus.recount-1]);
-
-		//when receive first data, timer run
-		if(modbus.recount == 1) {
-			modbus.timrun = 1;
+			//when receive first data, timer run
+			if(modbus.recount == 1) {
+				modbus.timrun = TRUE;
+			}
 		}
 	}
+	//__HAL_UART_CLEAR_PEFLAG(&huart2);
 
+#endif
   /* USER CODE END USART2_IRQn 0 */
   HAL_UART_IRQHandler(&huart2);
   /* USER CODE BEGIN USART2_IRQn 1 */

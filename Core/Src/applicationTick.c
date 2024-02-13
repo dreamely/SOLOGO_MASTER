@@ -40,6 +40,9 @@ void applicationTick(void)
 							memset(&ARRAY_TEMP.responseTemp[i], 0, sizeof(ARRAY_TEMP.responseTemp[i]));
 						}
 					}
+
+					//만약 타입이 RTD =2, 를 벗어나 쓰레기 값이 들어가 있으면 센서가 죽었다고 판단
+					//Printf_("index %d, type %02X\r\n", i, ARRAY_TEMP.responseTemp[i].type);
 				}
 			}
 		}

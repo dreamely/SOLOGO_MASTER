@@ -384,7 +384,7 @@ void LORA_SendRequestTemp(uint8_t index)
 	requestTemp.len = LEN_REQUEST_TEMP;
 	requestTemp.cmd = CMD_REQUEST_TEMP;
 
-	memcpy(&requestTemp.address, &LORA_REG_DEVICE[index][0], 8);
+	memcpy(requestTemp.address, &LORA_REG_DEVICE[index][0], 8);
 
 	//for(i=0; i<sizeof(requestTemp.address); i++) {
 	//	Printf_("%02X",requestTemp.address[i]);

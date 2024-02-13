@@ -1,8 +1,9 @@
 #include "main.h"
 
-REQUEST_TEMP requestTemp;
+
 //RESPONSE_TEMP responseTemp[16];
 _ARRAY_TEMP ARRAY_TEMP;
+REQUEST_TEMP requestTemp;
 
 
 #if 0

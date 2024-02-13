@@ -35,7 +35,7 @@ typedef struct {
   uint16_t  bat_rssi;	// RSSI 0 ~ 255, 배터리 0 ~ 100 %
   int16_t   temp1;		//온도*10
   int16_t   temp2;		//온도*10
-} __attribute__((packed))RESPONSE_TEMP;
+} __attribute__((packed))RESPONSE_TEMP;//RESPONSE_TEMP; //__attribute__((packed))RESPONSE_TEMP;
 
 typedef struct {  
 	RESPONSE_TEMP responseTemp[16];

@@ -108,7 +108,7 @@ void Modbus_Event(void)
 void Modbus_Func3(void)
 {
 	uint16_t Regadd, Reglen, crc;
-	uint8_t i, j, loarIndex;
+	uint16_t i, j, loarIndex;
 	uint8_t *arrayData;
 
 	TX_LedOnOff(TRUE);

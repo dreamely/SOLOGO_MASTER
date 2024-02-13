@@ -55,12 +55,14 @@ static const uint16_t crc_table[256] = {
 typedef struct {
 
 	uint8_t myadd;
-	uint8_t revbuf[100];
+	uint8_t revbuf[255];
 	uint8_t timeout;
 	uint8_t recount;
 	uint8_t timrun;
 	uint8_t reflag;
-	uint8_t sendbuf[100];
+
+	//개수를 100 으로 하면 보내는데이터가 100개가 넘기때문에 쓰레기값이 채워짐
+	uint8_t sendbuf[255];
 
 	uint8_t Host_Txbuf[8];
 	uint8_t slave_add;
